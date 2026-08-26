@@ -15,3 +15,6 @@ jobs:
 
       - name: Show files
         run: ls -la
+
+      - name: Validate Docker Compose
+        run: docker compose config
