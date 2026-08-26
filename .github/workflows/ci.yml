@@ -1,17 +1,17 @@
 name: CI
 
 on:
-    push:
-          branches:
-                  - main
+  push:
+    branches:
+      - main
 
-          jobs:
-              build:
-                    runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-                        steps:
-                                - name: Checkout code
-                                        uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-                                              - name: Show files
-                                                      run: ls -la
+      - name: Show files
+        run: ls -la
