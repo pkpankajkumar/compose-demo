@@ -13,7 +13,9 @@ services:
       - "5432:5432"
 
   backend:
-    image: pankajkumar384/fbs-api:1.1
+    build:
+     context: ./backend
+    image: fbs-api:3.0
     container_name: fbs-api-compose
     depends_on:
       - postgres
