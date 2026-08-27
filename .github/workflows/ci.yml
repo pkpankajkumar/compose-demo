@@ -40,7 +40,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Tag backend image
-        run: docker tag fbs-api:2.0 pankajkumar384/fbs-api:latest
+        run: docker tag fbs-api:3.0 pankajkumar384/fbs-api:latest
 
       - name: Tag frontend image
         run: docker tag my-hello-world:2.0 pankajkumar384/my-hello-world:latest
