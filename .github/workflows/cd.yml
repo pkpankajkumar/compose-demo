@@ -13,8 +13,14 @@ jobs:
 
     env:
       IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+      DB_NAME: myapp
+      DB_USER: admin
+      DB_PASSWORD: admin123
+      DB_HOST: postgres
+      DB_PORT: 5432
 
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -50,6 +56,15 @@ jobs:
           echo "Frontend changed: ${{ steps.changes.outputs.frontend }}"
           echo "Backend changed: ${{ steps.changes.outputs.backend }}"
 
+      # ---------------- VALIDATE ----------------
+
+      - name: Validate deployment compose
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          docker compose -f docker-compose.deploy.yml config
+
       # ---------------- FRONTEND ----------------
 
       - name: Pull frontend image
@@ -57,14 +72,16 @@ jobs:
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: docker compose -f docker-compose.deploy.yml pull frontend
+        run: |
+          docker compose -f docker-compose.deploy.yml pull frontend
 
       - name: Deploy frontend
         if: steps.changes.outputs.frontend == 'true'
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: docker compose -f docker-compose.deploy.yml up -d frontend
+        run: |
+          docker compose -f docker-compose.deploy.yml up -d frontend
 
       # ---------------- BACKEND ----------------
 
@@ -73,14 +90,16 @@ jobs:
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: docker compose -f docker-compose.deploy.yml pull backend
+        run: |
+          docker compose -f docker-compose.deploy.yml pull backend
 
       - name: Deploy backend
         if: steps.changes.outputs.backend == 'true'
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: docker compose -f docker-compose.deploy.yml up -d backend
+        run: |
+          docker compose -f docker-compose.deploy.yml up -d backend
 
       # ---------------- STATUS ----------------
 
@@ -88,4 +107,5 @@ jobs:
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: docker compose -f docker-compose.deploy.yml ps
+        run: |
+          docker compose -f docker-compose.deploy.yml ps
