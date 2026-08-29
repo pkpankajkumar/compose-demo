@@ -8,9 +8,8 @@ export default function Home() {
       height: '100vh',
       fontFamily: 'sans-serif' 
     }}>
-      <h1>this is my first deveOps journey</h1>
-       <p>covered CI/CD</p>
-        <p>covered CI/CD for individual development</p>
+      <h1>Hello World - CI/CD Test</h1>
+    
     </main>
   );
 }
