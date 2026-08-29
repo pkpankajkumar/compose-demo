@@ -14,15 +14,59 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 2
 
-      - name: Pull latest Docker images
-        run: docker compose -f docker-compose.deploy.yml pull
+      - name: Detect changed services
+        id: changes
+        shell: powershell
+        run: |
+          $changedFiles = git diff --name-only HEAD^ HEAD
 
-      - name: Deploy application
-        run: docker compose -f docker-compose.deploy.yml up -d
+          Write-Host "Changed files:"
+          $changedFiles
+
+          if ($changedFiles -match '^frontend/') {
+              "frontend=true" >> $env:GITHUB_OUTPUT
+          }
+          else {
+              "frontend=false" >> $env:GITHUB_OUTPUT
+          }
+
+          if ($changedFiles -match '^backend/') {
+              "backend=true" >> $env:GITHUB_OUTPUT
+          }
+          else {
+              "backend=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Show detected services
+        run: |
+          echo "Frontend changed: ${{ steps.changes.outputs.frontend }}"
+          echo "Backend changed: ${{ steps.changes.outputs.backend }}"
+
+      # ---------------- FRONTEND ----------------
+
+      - name: Pull frontend image
+        if: steps.changes.outputs.frontend == 'true'
+        run: docker compose -f docker-compose.deploy.yml pull frontend
+
+      - name: Deploy frontend
+        if: steps.changes.outputs.frontend == 'true'
+        run: docker compose -f docker-compose.deploy.yml up -d frontend
+
+      # ---------------- BACKEND ----------------
+
+      - name: Pull backend image
+        if: steps.changes.outputs.backend == 'true'
+        run: docker compose -f docker-compose.deploy.yml pull backend
+
+      - name: Deploy backend
+        if: steps.changes.outputs.backend == 'true'
+        run: docker compose -f docker-compose.deploy.yml up -d backend
+
+      # ---------------- STATUS ----------------
 
       - name: Show running containers
         run: docker compose -f docker-compose.deploy.yml ps
-
-      - name: Show backend logs
-        run: docker compose -f docker-compose.deploy.yml logs backend --tail 30
