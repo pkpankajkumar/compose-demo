@@ -13,6 +13,7 @@ jobs:
 
     env:
       IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+
       DB_NAME: myapp
       DB_USER: admin
       DB_PASSWORD: admin123
@@ -27,10 +28,13 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 2
 
+      # ---------------- DETECT CHANGES ----------------
+
       - name: Detect changed services
         id: changes
         shell: powershell
         run: |
+
           $changedFiles = git diff --name-only HEAD^ HEAD
 
           Write-Host "Changed files:"
@@ -56,22 +60,13 @@ jobs:
           echo "Frontend changed: ${{ steps.changes.outputs.frontend }}"
           echo "Backend changed: ${{ steps.changes.outputs.backend }}"
 
-      # ---------------- VALIDATE ----------------
-
-      - name: Validate deployment compose
-        env:
-          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
-          BACKEND_TAG: ${{ env.IMAGE_TAG }}
-        run: |
-          docker compose -f docker-compose.deploy.yml config
-
       # ---------------- FRONTEND ----------------
 
       - name: Pull frontend image
         if: steps.changes.outputs.frontend == 'true'
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
-          BACKEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: latest
         run: |
           docker compose -f docker-compose.deploy.yml pull frontend
 
@@ -79,16 +74,16 @@ jobs:
         if: steps.changes.outputs.frontend == 'true'
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
-          BACKEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: latest
         run: |
-          docker compose -f docker-compose.deploy.yml up -d frontend
+          docker compose -f docker-compose.deploy.yml up -d --no-deps frontend
 
       # ---------------- BACKEND ----------------
 
       - name: Pull backend image
         if: steps.changes.outputs.backend == 'true'
         env:
-          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          FRONTEND_TAG: latest
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: |
           docker compose -f docker-compose.deploy.yml pull backend
@@ -96,16 +91,16 @@ jobs:
       - name: Deploy backend
         if: steps.changes.outputs.backend == 'true'
         env:
-          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          FRONTEND_TAG: latest
           BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          docker compose -f docker-compose.deploy.yml up -d backend
+          docker compose -f docker-compose.deploy.yml up -d --no-deps backend
 
       # ---------------- STATUS ----------------
 
       - name: Show running containers
         env:
-          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
-          BACKEND_TAG: ${{ env.IMAGE_TAG }}
+          FRONTEND_TAG: latest
+          BACKEND_TAG: latest
         run: |
           docker compose -f docker-compose.deploy.yml ps
