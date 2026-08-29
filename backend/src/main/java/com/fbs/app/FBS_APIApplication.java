@@ -11,6 +11,7 @@ public class FBS_APIApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(FBS_APIApplication.class, args);
+        System.out.println("this is my main class");
 
     }
 }

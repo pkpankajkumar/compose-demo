@@ -9,7 +9,8 @@ export default function Home() {
       fontFamily: 'sans-serif' 
     }}>
       <h1>this is my first deveOps journey</h1>
-       <h1>covered CI/CD</h1>
+       <p>covered CI/CD</p>
+        <p>covered CI/CD for individual development</p>
     </main>
   );
 }
