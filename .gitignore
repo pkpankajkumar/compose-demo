@@ -1,1 +1,18 @@
+# GitHub Actions self-hosted runner
+actions-runner/
+
+# Environment files
 .env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# Java
+target/
+
+# Node
+node_modules/
+.next/
