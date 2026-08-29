@@ -34,7 +34,6 @@ jobs:
         id: changes
         shell: powershell
         run: |
-
           $changedFiles = git diff --name-only HEAD^ HEAD
 
           Write-Host "Changed files:"
@@ -70,7 +69,7 @@ jobs:
         run: |
           docker compose -f docker-compose.deploy.yml pull frontend
 
-      - name: Deploy frontend
+      - name: Deploy frontend only
         if: steps.changes.outputs.frontend == 'true'
         env:
           FRONTEND_TAG: ${{ env.IMAGE_TAG }}
@@ -88,7 +87,7 @@ jobs:
         run: |
           docker compose -f docker-compose.deploy.yml pull backend
 
-      - name: Deploy backend
+      - name: Deploy backend only
         if: steps.changes.outputs.backend == 'true'
         env:
           FRONTEND_TAG: latest
