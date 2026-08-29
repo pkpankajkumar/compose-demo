@@ -11,6 +11,9 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
+    env:
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -43,6 +46,7 @@ jobs:
 
       - name: Show detected services
         run: |
+          echo "Commit SHA: $env:IMAGE_TAG"
           echo "Frontend changed: ${{ steps.changes.outputs.frontend }}"
           echo "Backend changed: ${{ steps.changes.outputs.backend }}"
 
@@ -50,23 +54,38 @@ jobs:
 
       - name: Pull frontend image
         if: steps.changes.outputs.frontend == 'true'
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: docker compose -f docker-compose.deploy.yml pull frontend
 
       - name: Deploy frontend
         if: steps.changes.outputs.frontend == 'true'
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: docker compose -f docker-compose.deploy.yml up -d frontend
 
       # ---------------- BACKEND ----------------
 
       - name: Pull backend image
         if: steps.changes.outputs.backend == 'true'
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: docker compose -f docker-compose.deploy.yml pull backend
 
       - name: Deploy backend
         if: steps.changes.outputs.backend == 'true'
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: docker compose -f docker-compose.deploy.yml up -d backend
 
       # ---------------- STATUS ----------------
 
       - name: Show running containers
+        env:
+          FRONTEND_TAG: ${{ env.IMAGE_TAG }}
+          BACKEND_TAG: ${{ env.IMAGE_TAG }}
         run: docker compose -f docker-compose.deploy.yml ps

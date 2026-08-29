@@ -81,19 +81,19 @@ jobs:
 
       - name: Tag backend image
         if: steps.changes.outputs.backend == 'true'
-        run: docker tag fbs-api:3.0 pankajkumar384/fbs-api:latest
+        run: docker tag fbs-api:3.0 pankajkumar384/fbs-api:${{ github.sha }}
 
       - name: Tag frontend image
         if: steps.changes.outputs.frontend == 'true'
-        run: docker tag my-hello-world:2.0 pankajkumar384/my-hello-world:latest
+        run: docker tag my-hello-world:2.0 pankajkumar384/my-hello-world:${{ github.sha }}
 
       - name: Push backend image
         if: steps.changes.outputs.backend == 'true'
-        run: docker push pankajkumar384/fbs-api:latest
+        run: docker push pankajkumar384/fbs-api:${{ github.sha }}
 
       - name: Push frontend image
         if: steps.changes.outputs.frontend == 'true'
-        run: docker push pankajkumar384/my-hello-world:latest
+        run: docker push pankajkumar384/my-hello-world:${{ github.sha }}
 
       - name: Show Docker images
         run: docker images
